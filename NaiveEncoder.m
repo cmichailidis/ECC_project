@@ -1,22 +1,10 @@
+% Naive encoding algorithm.
+% No parity bits are used.
+% Every symbol is transmitted as it is
 classdef NaiveEncoder
-  properties
-    BlockBitLength
-  end
-
-  methods
-    function obj = set.BlockBitLength(obj, length)
-      if length <= 0
-        error("Block Bit Length must be a positive integer");
-      end
-      obj.BlockBitLength = length;
-    end
-
-    function length = get.BlockBitLength(obj)
-      length = obj.BlockBitLength;
-    end
-
+  methods (Access = public)
     function codewords = encodeSymbols(obj, messages)
-      codewords = de2bi(messages, obj.BlockBitLength, 'left-msb');
+      codewords = messages(:);
     end
   end
 end
