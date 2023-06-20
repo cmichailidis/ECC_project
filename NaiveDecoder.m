@@ -16,10 +16,7 @@ classdef NaiveDecoder
     end
 
     function symbols = decodeCodeWords(obj, codewords)
-      if size(codewords, 2) ~= obj.BlockBitLength
-        error("Invalid input dimensions");
-      end
-      symbols = bi2de(codewords, 'left-msb');
+      symbols = codewords(:);
     end
   end
 end

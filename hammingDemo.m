@@ -9,11 +9,12 @@ decoder = Hamming74Decoder;
 rsg.SymbolBitLength = 4;
 channel.BitWidth = 7;
 
-numOfMessages = 4000;
+numOfMessages = 1000;
 messages = rsg.generateSymbols(numOfMessages);
 
 epsilon = 5 * logspace(-3, -1, 20);
-error_rate = zeros(size(epsilon));
+hamming_error_rate = zeros(size(epsilon));
+naive_error_rate = zeros(size(epsilon));
 
 for i = 1:numel(epsilon)
   disp(i);
@@ -22,9 +23,27 @@ for i = 1:numel(epsilon)
   channel_output = channel.contaminateBitStream(channel_input);
   received_messages = decoder.decodeCodeWords(channel_output);
   numOfErrors = sum(received_messages ~= messages);
-  error_rate(i) = numOfErrors / numOfMessages;
+  hamming_error_rate(i) = numOfErrors / numOfMessages;
+end
+
+encoder = NaiveEncoder;
+decoder = NaiveDecoder;
+decoder.BlockBitLength = 4;
+channel.BitWidth = 4;
+
+for i = 1:numel(epsilon)
+  disp(i);
+  channel.CrossOverProbability = epsilon(i);
+  channel_input = encoder.encodeSymbols(messages);
+  channel_output = channel.contaminateBitStream(channel_input);
+  received_messages = decoder.decodeCodeWords(channel_output);
+  numOfErrors = sum(received_messages ~= messages);
+  naive_error_rate(i) = numOfErrors / numOfMessages;
 end
 
 figure(1);
-loglog(epsilon, error_rate);
-
+loglog(epsilon, hamming_error_rate, epsilon, naive_error_rate);
+xlabel('Cross-over probability');
+ylabel('Decoding error rate');
+grid on;
+legend('Hamming (7,4) encoder', 'Naive encoder');
