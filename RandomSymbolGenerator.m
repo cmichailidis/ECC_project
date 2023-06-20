@@ -3,7 +3,7 @@ classdef RandomSymbolGenerator
     SymbolBitLength
   end
 
-  methods (Access = public)
+  methods
     function obj = set.SymbolBitLength(obj, length)
       if length <= 0
         error("Symbol Length must be a positive integer");

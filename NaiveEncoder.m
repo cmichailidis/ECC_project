@@ -2,7 +2,7 @@
 % No parity bits are used.
 % Every symbol is transmitted as it is
 classdef NaiveEncoder
-  methods (Access = public)
+  methods
     function codewords = encodeSymbols(obj, messages)
       codewords = messages(:);
     end

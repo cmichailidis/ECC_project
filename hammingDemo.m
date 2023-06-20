@@ -1,5 +1,5 @@
 clear all; close all; clc;
-pkg load communications;
+% pkg load communications;
 
 rsg = RandomSymbolGenerator;
 encoder = Hamming74Encoder;
@@ -9,10 +9,10 @@ decoder = Hamming74Decoder;
 rsg.SymbolBitLength = 4;
 channel.BitWidth = 7;
 
-numOfMessages = 1000;
+numOfMessages = 30000;
 messages = rsg.generateSymbols(numOfMessages);
 
-epsilon = 5 * logspace(-3, -1, 20);
+epsilon = 5 * logspace(-4, -1, 20);
 hamming_error_rate = zeros(size(epsilon));
 naive_error_rate = zeros(size(epsilon));
 

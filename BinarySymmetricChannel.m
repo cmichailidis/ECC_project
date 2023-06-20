@@ -6,7 +6,7 @@ classdef BinarySymmetricChannel
     BitWidth                    % Bits per transmitted codeword
   end
 
-  methods (Access = public)
+  methods
     % Setter method for CrossOverProbability
     function obj = set.CrossOverProbability(obj, epsilon)
       if epsilon > 0.5 || epsilon < 0
