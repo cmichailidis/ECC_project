@@ -1,5 +1,7 @@
 clear all; close all; clc;
-% pkg load communications;
+pkg load communications;
+
+t0 = cputime;
 
 rsg = RandomSymbolGenerator;
 encoder = Hamming74Encoder;
@@ -9,10 +11,10 @@ decoder = Hamming74Decoder;
 rsg.SymbolBitLength = 4;
 channel.BitWidth = 7;
 
-numOfMessages = 30000;
+numOfMessages = 100000;
 messages = rsg.generateSymbols(numOfMessages);
 
-epsilon = 5 * logspace(-4, -1, 20);
+epsilon = 5 * logspace(-5, -1, 20);
 hamming_error_rate = zeros(size(epsilon));
 naive_error_rate = zeros(size(epsilon));
 
@@ -47,3 +49,7 @@ xlabel('Cross-over probability');
 ylabel('Decoding error rate');
 grid on;
 legend('Hamming (7,4) encoder', 'Naive encoder');
+
+tf = cputime;
+
+printf("Execution time %f seconds\n", tf - t0);

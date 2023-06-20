@@ -44,20 +44,22 @@ classdef Hamming74Decoder
   end
 
   methods (Access = public)
-    function symbols = decodeCodeWords(obj, codewords)
-      % Array of hamming distances
-      dist = zeros(numel(codewords), numel(obj.LookUpTableDec));
+    function symbols = decodeCodeWords(obj, codewordsDec)
+      codewordsDec = codewordsDec(:);
+      codewordsBin = uint8(de2bi(codewordsDec, 7, 'left-msb'));
+      numOfMessages = numel(codewordsDec);
 
-      for i = 1:numel(codewords)
-        for j = 1:numel(obj.LookUpTableDec)
-          dist(i,j) = sum(bitget(bitxor(codewords(i),obj.LookUpTableDec(j)),1:8));
-        end
-      end
+      codewordsBin = repmat(codewordsBin, 1, 1, 16);
+      codewordsBin = permute(codewordsBin, [1 3 2]);
 
-      % For every received codeword choose the
-      % template which minimizes the hamming distance
-      [~, argmin] = min(dist,[],2);
-      symbols = argmin - 1;
+      LUT = repmat(uint8(obj.LookUpTableBin), 1, 1, numOfMessages);
+      LUT = permute(LUT, [3 1 2]);
+
+      hammingDist = xor(codewordsBin, LUT);
+      hammingDist = sum(hammingDist, 3);
+
+      [~, idx] = min(hammingDist, [], 2);
+      symbols = idx - 1;
     end
   end
 end
