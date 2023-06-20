@@ -9,13 +9,13 @@ decoder = Hamming74Decoder;
 rsg.SymbolBitLength = 4;
 channel.BitWidth = 7;
 
-numOfMessages = 2000;
+numOfMessages = 4000;
 messages = rsg.generateSymbols(numOfMessages);
 
-epsilon = 5 * 0.1 .^ [1:9];
-error_rate = zeros(9,1);
+epsilon = 5 * logspace(-3, -1, 20);
+error_rate = zeros(size(epsilon));
 
-for i = 1:9
+for i = 1:numel(epsilon)
   disp(i);
   channel.CrossOverProbability = epsilon(i);
   channel_input = encoder.encodeSymbols(messages);

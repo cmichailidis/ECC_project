@@ -45,15 +45,12 @@ classdef Hamming74Decoder
 
   methods (Access = public)
     function symbols = decodeCodeWords(obj, codewords)
-      % function handle for hamming distance of 8-bit words
-      hammingDist = @(x,y) sum(bitget(bitxor(x,y),1:8));
-
       % Array of hamming distances
       dist = zeros(numel(codewords), numel(obj.LookUpTableDec));
 
       for i = 1:numel(codewords)
         for j = 1:numel(obj.LookUpTableDec)
-          dist(i,j) = hammingDist(codewords(i), obj.LookUpTableDec(j));
+          dist(i,j) = sum(bitget(bitxor(codewords(i),obj.LookUpTableDec(j)),1:8));
         end
       end
 
