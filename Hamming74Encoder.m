@@ -1,3 +1,9 @@
+% Error correction with a Hamming (7,4) code
+% Every codeword contains 4 data bits and 3
+% parity bits. The minimum hamming distance
+% is 3. Therefore this technique can successfully
+% correct up to 1 flipped bit.
+
 classdef Hamming74Encoder
   properties (Access = private)
     GeneratorMatrix = [
@@ -6,7 +12,7 @@ classdef Hamming74Encoder
       0 0 1 0  1 0 1;
       0 0 0 1  1 1 1; ];
 
-    LookUpTableBin = [
+    LookUpTableBin = [  % Symbol -> Codeword
       0 0 0 0 0 0 0;    % 0b0000 -> 0b0000000
       0 0 0 1 1 1 1;    % 0b0001 -> 0b0001111
       0 0 1 0 1 0 1;    % 0b0010 -> 0b0010101

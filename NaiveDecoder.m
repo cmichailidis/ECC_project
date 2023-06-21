@@ -1,20 +1,9 @@
+% Naive decoding algorithm. No parity bits are used.
+% There is no distinction between symbols and codewords
+% Symbols can be retrieved successfully, if no errors
+% occur in the corresponding codeword
 classdef NaiveDecoder
-  properties
-    BlockBitLength
-  end
-
   methods
-    function obj = set.BlockBitLength(obj, length)
-      if length <= 0
-        error("Block Bit Length must be a positive integer");
-      end
-      obj.BlockBitLength = length;
-    end
-
-    function length = get.BlockBitLength(obj)
-      length = obj.BlockBitLength;
-    end
-
     function symbols = decodeCodeWords(obj, codewords)
       symbols = codewords(:);
     end

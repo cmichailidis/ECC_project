@@ -1,55 +1,183 @@
-clear all; close all; clc;
+% Reset Matlab environment
+clear all; close all; clc; warning('off');
+
+% Load dependencies
 pkg load communications;
 
-t0 = cputime;
+% ========================================================
+% Benchmark Parameters (Experiment with your own values)
+% ========================================================
 
+% Number of messages/symbols to send through the noisy channel
+numOfMessages = 500000;
+
+% Range of noise-levels over the transmission channel
+loExp = -5;
+hiExp = -1;
+num = 20;
+epsilon = 5 * logspace(loExp, hiExp, num);
+
+% =========================================================
+% Setup a 4-bit random symbol generator and
+% generate random messages/symbols
+% =========================================================
 rsg = RandomSymbolGenerator;
-encoder = Hamming74Encoder;
-channel = BinarySymmetricChannel;
-decoder = Hamming74Decoder;
-
 rsg.SymbolBitLength = 4;
-channel.BitWidth = 7;
-
-numOfMessages = 100000;
 messages = rsg.generateSymbols(numOfMessages);
 
-epsilon = 5 * logspace(-5, -1, 20);
-hamming_error_rate = zeros(size(epsilon));
-naive_error_rate = zeros(size(epsilon));
-
-for i = 1:numel(epsilon)
-  disp(i);
-  channel.CrossOverProbability = epsilon(i);
-  channel_input = encoder.encodeSymbols(messages);
-  channel_output = channel.contaminateBitStream(channel_input);
-  received_messages = decoder.decodeCodeWords(channel_output);
-  numOfErrors = sum(received_messages ~= messages);
-  hamming_error_rate(i) = numOfErrors / numOfMessages;
-end
-
+% =========================================================
+% 1st Benchmark: No error-correction is used
+% =========================================================
 encoder = NaiveEncoder;
-decoder = NaiveDecoder;
-decoder.BlockBitLength = 4;
+channel = BinarySymmetricChannel;
 channel.BitWidth = 4;
+decoder = NaiveDecoder;
 
-for i = 1:numel(epsilon)
-  disp(i);
+% Convert symbols to codewords (encoding)
+codewords = encoder.encodeSymbols(messages);
+
+naive_error_rate = zeros(num, 1);
+
+% Progress status
+disp("\nBenchmark: 1 out of 3");
+disp("-----------------------");
+
+tic;
+
+for i = 1:num
+  % Progress bar
+  disp(sprintf("Progress: %d/%d", i, num));
+
+  % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
-  channel_input = encoder.encodeSymbols(messages);
-  channel_output = channel.contaminateBitStream(channel_input);
-  received_messages = decoder.decodeCodeWords(channel_output);
-  numOfErrors = sum(received_messages ~= messages);
+
+  % Contaminate input with additive noise
+  channelOutput = channel.contaminateBitStream(codewords);
+
+  % Decode the received data and try to correct any errors
+  decoderOutput = decoder.decodeCodeWords(channelOutput);
+
+  % Compare the output of the decoder with the initial data
+  numOfErrors = sum(decoderOutput ~= messages);
   naive_error_rate(i) = numOfErrors / numOfMessages;
 end
 
-figure(1);
-loglog(epsilon, hamming_error_rate, epsilon, naive_error_rate);
-xlabel('Cross-over probability');
-ylabel('Decoding error rate');
+toc;
+
+% ========================================================
+% 2nd Benchmark: Error correction with Hamming (7,4) code
+% ========================================================
+encoder = Hamming74Encoder;
+channel = BinarySymmetricChannel;
+channel.BitWidth = 7;
+decoder = Hamming74Decoder;
+
+% Convert symbols to codewords (encoding)
+codewords = encoder.encodeSymbols(messages);
+
+hamming_error_rate = zeros(num, 1);
+
+% Progress status
+disp("\nBenchmark: 2 out of 3");
+disp("-----------------------");
+
+tic;
+
+for i = 1:num
+  % Progress bar
+  disp(sprintf("Progress: %d/%d", i, num));
+
+  % Update the cross-over-probability of the channel
+  channel.CrossOverProbability = epsilon(i);
+
+  % Contaminate input with additive noise
+  channelOutput = channel.contaminateBitStream(codewords);
+
+  % Decode the received data and try to correct any errors
+  decoderOutput = decoder.decodeCodeWords(channelOutput);
+
+  % Compare the output of the decoder with the initial data
+  numOfErrors = sum(decoderOutput ~= messages);
+  hamming_error_rate(i) = numOfErrors / numOfMessages;
+end
+
+toc;
+
+% =========================================================
+% 3nd Benchmark: Error correction with Hadamard (16,4) code
+% =========================================================
+encoder = Hadamard164Encoder;
+channel = BinarySymmetricChannel;
+channel.BitWidth = 16;
+decoder = Hadamard164Decoder;
+
+% Convert symbols to codewords (encoding)
+codewords = encoder.encodeSymbols(messages);
+
+hadamard_error_rate = zeros(num, 1);
+
+% Progress status
+disp("\nBenchmark: 3 out of 3");
+disp("-----------------------");
+
+tic;
+
+for i = 1:num
+  % Progress bar
+  disp(sprintf("Progress: %d/%d", i, num));
+
+  % Update the cross-over-probability of the channel
+  channel.CrossOverProbability = epsilon(i);
+
+  % Contaminate input with additive noise
+  channelOutput = channel.contaminateBitStream(codewords);
+
+  % Decode the received data and try to correct any errors
+  decoderOutput = decoder.decodeCodeWords(channelOutput);
+
+  % Compare the output of the decoder with the initial data
+  numOfErrors = sum(decoderOutput ~= messages);
+  hadamard_error_rate(i) = numOfErrors / numOfMessages;
+end
+
+toc;
+
+% ==========================================================
+% Plot the results of the benchmarks
+% ==========================================================
+
+naive_error_rate_theoretical     = 1-(1-epsilon).^4;
+hamming_error_rate_theoretical   = 1-(1-epsilon).^6 .* (1+6*epsilon);
+hadamard_error_rate_theoretical  = 1-(1-epsilon).^16;
+hadamard_error_rate_theoretical -=   16 .* (epsilon .^ 1) .* (1-epsilon).^15;
+hadamard_error_rate_theoretical -=  120 .* (epsilon .^ 2) .* (1-epsilon).^14;
+hadamard_error_rate_theoretical -=  560 .* (epsilon .^ 3) .* (1-epsilon).^13;
+hadamard_error_rate_theoretical -=  910 .* (epsilon .^ 4) .* (1-epsilon).^12;
+
+% Error-rates in logarithmic scale
+figure(1); hold on;
+loglog(epsilon, naive_error_rate, 'o', 'color', 'red', 'MarkerFaceColor', 'red');
+loglog(epsilon, naive_error_rate_theoretical, '--', 'color', 'red');
+loglog(epsilon, hamming_error_rate, 'o', 'color', 'blue', 'MarkerFaceColor', 'blue');
+loglog(epsilon, hamming_error_rate_theoretical, '--', 'color', 'blue');
+loglog(epsilon, hadamard_error_rate, 'o', 'color', 'black', 'MarkerFaceColor', 'black');
+loglog(epsilon, hadamard_error_rate_theoretical, '--', 'color', 'black');
+
+% Axes limits
+xlim([5 * 10 ^ loExp 5 * 10 ^ hiExp]);
+ylim([5e-7 1]);
+
+xlabel('Cross-Over-Probability');
+ylabel('Decoder error-rate');
+title('Error-Rate vs Cross-Over-Probability');
+
+legend(
+  'No error-correction, benchmark results',
+  'No error-correction, theoretical error rate',
+  'Hamming (7,4), benchmark results',
+  'Hamming (7,4), theoretical error rate',
+  'Hadamard (16,4), benchmark results',
+  'Hadamard (16,4), theoretical error rate',
+  'Location', 'northwest');
+
 grid on;
-legend('Hamming (7,4) encoder', 'Naive encoder');
-
-tf = cputime;
-
-printf("Execution time %f seconds\n", tf - t0);

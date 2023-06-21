@@ -1,3 +1,9 @@
+% Error correction with a Hamming (7,4) code
+% Every codeword contains 4 data bits and 3
+% parity bits. The minimum hamming distance
+% is 3. Therefore this technique can successfully
+% correct up to 1 flipped bit.
+
 classdef Hamming74Decoder
   properties (Access = private)
     ParityCheckMatrix = [
@@ -5,7 +11,7 @@ classdef Hamming74Decoder
       1 1 0 1   0 1 0;
       0 1 1 1   0 0 1;  ];
 
-    LookUpTableBin = uint8([
+    LookUpTableBin = [   % Symbol -> Codeword
       0 0 0 0 0 0 0;     % 0b0000 -> 0b0000000
       0 0 0 1 1 1 1;     % 0b0001 -> 0b0001111
       0 0 1 0 1 0 1;     % 0b0010 -> 0b0010101
@@ -21,7 +27,7 @@ classdef Hamming74Decoder
       1 1 0 0 1 0 1;     % 0b1100 -> 0b1100101
       1 1 0 1 0 1 0;     % 0b1101 -> 0b1101010
       1 1 1 0 0 0 0;     % 0b1110 -> 0b1110000
-      1 1 1 1 1 1 1; ]); % 0b1111 -> 0b1111111
+      1 1 1 1 1 1 1; ];  % 0b1111 -> 0b1111111
 
     LookUpTableDec = [
         0;               % 00 ->   0
@@ -45,19 +51,22 @@ classdef Hamming74Decoder
 
   methods (Access = public)
     function symbols = decodeCodeWords(obj, codewordsDec)
+      % Convert decimal codewords to binary vectors
       codewordsDec = codewordsDec(:);
       codewordsBin = uint8(de2bi(codewordsDec, 7, 'left-msb'));
       numOfMessages = numel(codewordsDec);
 
+      % Nasty broadcasting
       codewordsBin = repmat(codewordsBin, 1, 1, 16);
       codewordsBin = permute(codewordsBin, [1 3 2]);
-
       LUT = repmat(uint8(obj.LookUpTableBin), 1, 1, numOfMessages);
       LUT = permute(LUT, [3 1 2]);
 
+      % Hamming distance between every received message and valid codeword
       hammingDist = xor(codewordsBin, LUT);
       hammingDist = sum(hammingDist, 3);
 
+      % Minimum-Hamming-Distance decoding
       [~, idx] = min(hammingDist, [], 2);
       symbols = idx - 1;
     end
