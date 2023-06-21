@@ -1,25 +1,20 @@
-function x_hat = BPDecoder(y,H, num_iter)
+function x_hat = BPDecoder(y,H)
 %BPDecoder Implementetion of the Belief Propagation  Decoder for BEC
 %channel
 %   Detailed explanation DOES NOT go here
 
-[m, n] = size(H);
-x = y;
+[~, n] = size(H);
 
-for iter = 1 : num_iter
+num_iter = 10;
+
+x_hat = y;
+
+for iter = 2 : num_iter+1
     for i = 1 : n
-        message = x(i);
-        for j = 1 : m
-            if H(j,i) == 1
-                idx = (1:n ~= i) & logical(H(j,:));
-                msg = mod(sum(x(idx)), 2);
-                if ~isnan(msg)
-                    message = msg;
-                end
-            end
+        msg = checkNodesMsg(x_hat, i, H);
+        if ~isnan(msg)
+            x_hat(i) = msg;
         end
-        x(i) = message;
     end
 end
-x_hat = x;
 end

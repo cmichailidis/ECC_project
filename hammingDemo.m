@@ -9,7 +9,7 @@ pkg load communications;
 % ========================================================
 
 % Number of messages/symbols to send through the noisy channel
-numOfMessages = 500000;
+numOfMessages = 1000000;
 
 % Range of noise-levels over the transmission channel
 loExp = -5;
@@ -146,22 +146,49 @@ toc;
 % Plot the results of the benchmarks
 % ==========================================================
 
+% Theoretical error rates for naive and hamming encoding
 naive_error_rate_theoretical     = 1-(1-epsilon).^4;
 hamming_error_rate_theoretical   = 1-(1-epsilon).^6 .* (1+6*epsilon);
+
+% Upper and lower bound for hadamard encoding error rate
 hadamard_error_rate_theoretical  = 1-(1-epsilon).^16;
 hadamard_error_rate_theoretical -=   16 .* (epsilon .^ 1) .* (1-epsilon).^15;
 hadamard_error_rate_theoretical -=  120 .* (epsilon .^ 2) .* (1-epsilon).^14;
 hadamard_error_rate_theoretical -=  560 .* (epsilon .^ 3) .* (1-epsilon).^13;
-hadamard_error_rate_theoretical -=  910 .* (epsilon .^ 4) .* (1-epsilon).^12;
+
+hadamard_error_rate_lower_bound = hadamard_error_rate_theoretical;
+hadamard_error_rate_upper_bound = hadamard_error_rate_theoretical - 1820 .* (epsilon .^ 4) .* (1-epsilon).^12;
 
 % Error-rates in logarithmic scale
 figure(1); hold on;
-loglog(epsilon, naive_error_rate, 'o', 'color', 'red', 'MarkerFaceColor', 'red');
-loglog(epsilon, naive_error_rate_theoretical, '--', 'color', 'red');
-loglog(epsilon, hamming_error_rate, 'o', 'color', 'blue', 'MarkerFaceColor', 'blue');
-loglog(epsilon, hamming_error_rate_theoretical, '--', 'color', 'blue');
-loglog(epsilon, hadamard_error_rate, 'o', 'color', 'black', 'MarkerFaceColor', 'black');
-loglog(epsilon, hadamard_error_rate_theoretical, '--', 'color', 'black');
+
+loglog(epsilon, naive_error_rate,
+  'o', 'color', 'red',
+  'MarkerFaceColor', 'red');
+
+loglog(epsilon, naive_error_rate_theoretical,
+  '--', 'color', 'red',
+  'LineWidth', 1.5);
+
+loglog(epsilon, hamming_error_rate,
+  'o', 'color', 'blue',
+  'MarkerFaceColor', 'blue');
+
+loglog(epsilon, hamming_error_rate_theoretical,
+  '--', 'color', 'blue',
+  'LineWidth', 1.5);
+
+loglog(epsilon, hadamard_error_rate,
+  'o', 'color', 'black',
+  'MarkerFaceColor', 'black');
+
+loglog(epsilon, hadamard_error_rate_upper_bound,
+  ':', 'color', 'black',
+  'LineWidth', 1.5);
+
+loglog(epsilon, hadamard_error_rate_lower_bound,
+  ':', 'color', 'black',
+  'LineWidth', 1.5);
 
 % Axes limits
 xlim([5 * 10 ^ loExp 5 * 10 ^ hiExp]);
@@ -177,7 +204,8 @@ legend(
   'Hamming (7,4), benchmark results',
   'Hamming (7,4), theoretical error rate',
   'Hadamard (16,4), benchmark results',
-  'Hadamard (16,4), theoretical error rate',
+  'Hadamard (16,4), theoretical error rate (upper bound)',
+  'Hadamard (16,4), theoretical error rate (lower bound)',
   'Location', 'northwest');
 
 grid on;
