@@ -29,29 +29,12 @@ classdef Hadamard164Encoder
       0 1 0 1 1 0 1 0 1 0 1 0 0 1 0 1;      % 0b1101 -> 0b0101101010100101
       0 0 1 1 1 1 0 0 1 1 0 0 0 0 1 1;      % 0b1110 -> 0b0011110011000011
       0 1 1 0 1 0 0 1 1 0 0 1 0 1 1 0; ];   % 0b1111 -> 0b0110100110010110
-
-    LookUpTableDec = [
-            0;                              % 0  -> 0
-        21845;                              % 1  -> 21845
-        13107;                              % 2  -> 13107
-        26214;                              % 3  -> 26214
-         3855;                              % 4  -> 3855
-        23130;                              % 5  -> 23130
-        15420;                              % 6  -> 15420
-        26985;                              % 7  -> 26985
-          255;                              % 8  -> 255
-        21930;                              % 9  -> 21930
-        13260;                              % 10 -> 13260
-        26265;                              % 11 -> 26265
-         4080;                              % 12 -> 4080
-        23205;                              % 13 -> 23205
-        15555;                              % 14 -> 15555
-        27030; ];                           % 15 -> 27030
   end
 
   methods (Access = public)
-    function codewords = encodeSymbols(obj, messages)
-      codewords = obj.LookUpTableDec(messages(:)+1);
+    function codewords = encodeSymbols(obj, symbols)
+      idx = symbols(:) + 1;
+      codewords = obj.LookUpTableBin(idx,:);
     end
   end
 end

@@ -30,7 +30,6 @@ messages = rsg.generateSymbols(numOfMessages);
 % =========================================================
 encoder = NaiveEncoder;
 channel = BinarySymmetricChannel;
-channel.BitWidth = 4;
 decoder = NaiveDecoder;
 
 % Convert symbols to codewords (encoding)
@@ -55,7 +54,7 @@ for i = 1:num
   % Contaminate input with additive noise
   channelOutput = channel.contaminateBitStream(codewords);
 
-  % Decode the received data and try to correct any errors
+  % Decode the received data
   decoderOutput = decoder.decodeCodeWords(channelOutput);
 
   % Compare the output of the decoder with the initial data
@@ -70,7 +69,6 @@ toc;
 % ========================================================
 encoder = Hamming74Encoder;
 channel = BinarySymmetricChannel;
-channel.BitWidth = 7;
 decoder = Hamming74Decoder;
 
 % Convert symbols to codewords (encoding)
@@ -110,7 +108,6 @@ toc;
 % =========================================================
 encoder = Hadamard164Encoder;
 channel = BinarySymmetricChannel;
-channel.BitWidth = 16;
 decoder = Hadamard164Decoder;
 
 % Convert symbols to codewords (encoding)

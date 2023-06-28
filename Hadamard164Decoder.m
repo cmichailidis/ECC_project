@@ -29,41 +29,21 @@ classdef Hadamard164Decoder
       0 1 0 1 1 0 1 0 1 0 1 0 0 1 0 1;      % 0b1101 -> 0b0101101010100101
       0 0 1 1 1 1 0 0 1 1 0 0 0 0 1 1;      % 0b1110 -> 0b0011110011000011
       0 1 1 0 1 0 0 1 1 0 0 1 0 1 1 0; ];   % 0b1111 -> 0b0110100110010110
-
-    LookUpTableDec = [
-            0;                              % 0  -> 0
-        21845;                              % 1  -> 21845
-        13107;                              % 2  -> 13107
-        26214;                              % 3  -> 26214
-         3855;                              % 4  -> 3855
-        23130;                              % 5  -> 23130
-        15420;                              % 6  -> 15420
-        26985;                              % 7  -> 26985
-          255;                              % 8  -> 255
-        21930;                              % 9  -> 21930
-        13260;                              % 10 -> 13260
-        26265;                              % 11 -> 26265
-         4080;                              % 12 -> 4080
-        23205;                              % 13 -> 23205
-        15555;                              % 14 -> 15555
-        27030; ];                           % 15 -> 27030
   end
 
   methods (Access = public)
-    function symbols = decodeCodeWords(obj, codewordsDec)
-      % Convert decimal codewords to binary vectors
-      codewordsDec = codewordsDec(:);
-      codewordsBin = uint16(de2bi(codewordsDec, 16, 'left-msb'));
-      numOfMessages = numel(codewordsDec);
+    function symbols = decodeCodeWords(obj, codewords)
+      % Total number of received messages
+      numOfMessages = size(codewords, 1);
 
       % Nasty broadcasting
-      codewordsBin = repmat(codewordsBin, 1, 1, 16);
-      codewordsBin = permute(codewordsBin, [1 3 2]);
+      codewords = repmat(codewords, 1, 1, 16);
+      codewords = permute(codewords, [1 3 2]);
       LUT = repmat(uint16(obj.LookUpTableBin), 1, 1, numOfMessages);
       LUT = permute(LUT, [3 1 2]);
 
       % Hamming distance between every received message and valid codeword
-      hammingDist = xor(codewordsBin, LUT);
+      hammingDist = xor(codewords, LUT);
       hammingDist = sum(hammingDist, 3);
 
       % Minimum-Hamming-Distance decoding

@@ -29,30 +29,12 @@ classdef Hamming74Encoder
       1 1 0 1 0 1 0;    % 0b1101 -> 0b1101010
       1 1 1 0 0 0 0;    % 0b1110 -> 0b1110000
       1 1 1 1 1 1 1; ]; % 0b1111 -> 0b1111111
-
-    LookUpTableDec = [
-        0;              % 00 ->   0
-       15;              % 01 ->  15
-       21;              % 02 ->  21
-       26;              % 03 ->  26
-       35;              % 04 ->  35
-       44;              % 05 ->  44
-       54;              % 06 ->  54
-       57;              % 07 ->  57
-       70;              % 08 ->  70
-       73;              % 09 ->  73
-       83;              % 10 ->  83
-       92;              % 11 ->  92
-      101;              % 12 -> 101
-      106;              % 13 -> 106
-      112;              % 14 -> 112
-      127;              % 15 -> 127
-     ];
   end
 
   methods (Access = public)
-    function codewords = encodeSymbols(obj, messages)
-      codewords = obj.LookUpTableDec(messages(:)+1);
+    function codewords = encodeSymbols(obj, symbols)
+      idx = symbols(:) + 1;
+      codewords = obj.LookUpTableBin(idx,:);
     end
   end
 end

@@ -5,7 +5,8 @@
 classdef NaiveDecoder
   methods
     function symbols = decodeCodeWords(obj, codewords)
-      symbols = codewords(:);
+      symbolsBin = codewords;
+      symbols = bi2de(symbolsBin, 'left-msb');
     end
   end
 end

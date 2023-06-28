@@ -29,25 +29,6 @@ classdef Hamming74Decoder
       1 1 1 0 0 0 0;     % 0b1110 -> 0b1110000
       1 1 1 1 1 1 1; ];  % 0b1111 -> 0b1111111
 
-    LookUpTableDec = [
-        0;               % 00 ->   0
-       15;               % 01 ->  15
-       21;               % 02 ->  21
-       26;               % 03 ->  26
-       35;               % 04 ->  35
-       44;               % 05 ->  44
-       54;               % 06 ->  54
-       57;               % 07 ->  57
-       70;               % 08 ->  70
-       73;               % 09 ->  73
-       83;               % 10 ->  83
-       92;               % 11 ->  92
-      101;               % 12 -> 101
-      106;               % 13 -> 106
-      112;               % 14 -> 112
-      127;               % 15 -> 127
-     ];
-
      ErrorPatternBin = [
       0 0 0 0 0 0 0;                        % syndrome 000
       0 0 0 0 0 0 1;                        % syndrome 001
@@ -69,39 +50,25 @@ classdef Hamming74Decoder
       0 1 1;
       1 1 0;
      ];
-
-     SyndromeTableDec = [
-      0;
-      1;
-      2;
-      4;
-      7;
-      5;
-      3;
-      6;
-     ];
-
   end
 
   methods (Access = public)
-    function symbols = decodeCodeWords(obj, codewordsDec)
-      % Convert decimal codewords to binary vectors
-      codewordsDec = codewordsDec(:);
-      codewordsBin = de2bi(codewordsDec, 7, 'left-msb');
-      numOfMessages = numel(codewordsDec);
-
+    function symbols = decodeCodeWords(obj, codewords)
       % -----------------------------------------------------
       %     Naive decoding with minimum hamming distance
       % -----------------------------------------------------
 
+      %% Total number of received messages
+      numOfMessages = size(codewords, 1);
+
       %% Nasty broadcasting
-      %codewordsBin = repmat(codewordsBin, 1, 1, 16);
-      %codewordsBin = permute(codewordsBin, [1 3 2]);
+      %codewords = repmat(codewords, 1, 1, 16);
+      %codewords = permute(codewords, [1 3 2]);
       %LUT = repmat(uint8(obj.LookUpTableBin), 1, 1, numOfMessages);
       %LUT = permute(LUT, [3 1 2]);
 
       %% Hamming distance between every received message and valid codeword
-      %hammingDist = xor(codewordsBin, LUT);
+      %hammingDist = xor(codewords, LUT);
       %hammingDist = sum(hammingDist, 3);
 
       %% Minimum-Hamming-Distance decoding
@@ -111,10 +78,10 @@ classdef Hamming74Decoder
       % -----------------------------------------------------
       %             Decoding with Syndrome Tables
       % -----------------------------------------------------
-      syndromesBin = mod(codewordsBin * obj.ParityCheckMatrix', 2);
-      syndromesDec = bi2de(syndromesBin, 'left-msb') + 1;
-      errorsBin = obj.ErrorPatternBin(syndromesDec,:);
-      correctedBin = mod(codewordsBin + errorsBin, 2);
+      syndromesBin = mod(codewords * obj.ParityCheckMatrix', 2);
+      idx = bi2de(syndromesBin, 'left-msb') + 1;
+      errorsBin = obj.ErrorPatternBin(idx,:);
+      correctedBin = mod(codewords + errorsBin, 2);
       symbolsBin = correctedBin(:, 1:4);
       symbols = bi2de(symbolsBin, 'left-msb');
     end

@@ -5,7 +5,7 @@
 classdef NaiveEncoder
   methods
     function codewords = encodeSymbols(obj, messages)
-      codewords = messages(:);
+      codewords = de2bi(messages(:), 4, 'left-msb');
     end
   end
 end
