@@ -47,28 +47,76 @@ classdef Hamming74Decoder
       112;               % 14 -> 112
       127;               % 15 -> 127
      ];
+
+     ErrorPatternBin = [
+      0 0 0 0 0 0 0;                        % syndrome 000
+      0 0 0 0 0 0 1;                        % syndrome 001
+      0 0 0 0 0 1 0;                        % syndrome 010
+      0 1 0 0 0 0 0;                        % syndrome 011
+      0 0 0 0 1 0 0;                        % syndrome 100
+      0 0 1 0 0 0 0;                        % syndrome 101
+      1 0 0 0 0 0 0;                        % syndrome 110
+      0 0 0 1 0 0 0;                        % syndrome 111
+     ];
+
+     SyndromeTableBin = [
+      0 0 0;
+      0 0 1;
+      0 1 0;
+      1 0 0;
+      1 1 1;
+      1 0 1;
+      0 1 1;
+      1 1 0;
+     ];
+
+     SyndromeTableDec = [
+      0;
+      1;
+      2;
+      4;
+      7;
+      5;
+      3;
+      6;
+     ];
+
   end
 
   methods (Access = public)
     function symbols = decodeCodeWords(obj, codewordsDec)
       % Convert decimal codewords to binary vectors
       codewordsDec = codewordsDec(:);
-      codewordsBin = uint8(de2bi(codewordsDec, 7, 'left-msb'));
+      codewordsBin = de2bi(codewordsDec, 7, 'left-msb');
       numOfMessages = numel(codewordsDec);
 
-      % Nasty broadcasting
-      codewordsBin = repmat(codewordsBin, 1, 1, 16);
-      codewordsBin = permute(codewordsBin, [1 3 2]);
-      LUT = repmat(uint8(obj.LookUpTableBin), 1, 1, numOfMessages);
-      LUT = permute(LUT, [3 1 2]);
+      % -----------------------------------------------------
+      %     Naive decoding with minimum hamming distance
+      % -----------------------------------------------------
 
-      % Hamming distance between every received message and valid codeword
-      hammingDist = xor(codewordsBin, LUT);
-      hammingDist = sum(hammingDist, 3);
+      %% Nasty broadcasting
+      %codewordsBin = repmat(codewordsBin, 1, 1, 16);
+      %codewordsBin = permute(codewordsBin, [1 3 2]);
+      %LUT = repmat(uint8(obj.LookUpTableBin), 1, 1, numOfMessages);
+      %LUT = permute(LUT, [3 1 2]);
 
-      % Minimum-Hamming-Distance decoding
-      [~, idx] = min(hammingDist, [], 2);
-      symbols = idx - 1;
+      %% Hamming distance between every received message and valid codeword
+      %hammingDist = xor(codewordsBin, LUT);
+      %hammingDist = sum(hammingDist, 3);
+
+      %% Minimum-Hamming-Distance decoding
+      %[~, idx] = min(hammingDist, [], 2);
+      %symbols = idx - 1;
+
+      % -----------------------------------------------------
+      %             Decoding with Syndrome Tables
+      % -----------------------------------------------------
+      syndromesBin = mod(codewordsBin * obj.ParityCheckMatrix', 2);
+      syndromesDec = bi2de(syndromesBin, 'left-msb') + 1;
+      errorsBin = obj.ErrorPatternBin(syndromesDec,:);
+      correctedBin = mod(codewordsBin + errorsBin, 2);
+      symbolsBin = correctedBin(:, 1:4);
+      symbols = bi2de(symbolsBin, 'left-msb');
     end
   end
 end
