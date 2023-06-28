@@ -9,7 +9,7 @@ pkg load communications;
 % ========================================================
 
 % Number of messages/symbols to send through the noisy channel
-numOfMessages = 1000000;
+numOfMessages = 100000;
 
 % Range of noise-levels over the transmission channel
 loExp = -5;
@@ -39,14 +39,15 @@ codewords = encoder.encodeSymbols(messages);
 naive_error_rate = zeros(num, 1);
 
 % Progress status
-disp("\nBenchmark: 1 out of 3");
-disp("-----------------------");
+disp("\n\nBenchmark: 1 out of 3, No error correction");
+disp("--------------------------------------------");
 
 tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Progress: %d/%d", i, num));
+  disp(sprintf("Test case: %d out of %d.", i, num));
+  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
@@ -78,14 +79,15 @@ codewords = encoder.encodeSymbols(messages);
 hamming_error_rate = zeros(num, 1);
 
 % Progress status
-disp("\nBenchmark: 2 out of 3");
-disp("-----------------------");
+disp("\n\nBenchmark: 2 out of 3, Hamming (7,4)");
+disp("--------------------------------------");
 
 tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Progress: %d/%d", i, num));
+  disp(sprintf("Test case: %d out of %d.", i, num));
+  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
@@ -117,14 +119,15 @@ codewords = encoder.encodeSymbols(messages);
 hadamard_error_rate = zeros(num, 1);
 
 % Progress status
-disp("\nBenchmark: 3 out of 3");
-disp("-----------------------");
+disp("\n\nBenchmark: 3 out of 3, Hadamard (16,4)");
+disp("----------------------------------------");
 
 tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Progress: %d/%d", i, num));
+  disp(sprintf("Test case: %d out of %d.", i, num));
+  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
