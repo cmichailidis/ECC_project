@@ -1,0 +1,11 @@
+* TODO Christodoulos Michaelides
+1. [ ] Run the same experiments with longer symbols
+2. [ ] Fix incompatibilities between Octave and MatLab
+
+* TODO Alexandros Tsingilis
+1. [X] Implement, test, and debug Belief Propagation Decoder
+2. [X]  Implement regular/irregular LDPC utility functions
+
+* TODO **Assigment Report**
+Deadline: <2023-09-21 Πεμ>
+
