@@ -1,8 +1,8 @@
 % Reset Matlab environment
 clear all; close all; clc; warning('off');
 
-% Load dependencies
-pkg load communications;
+% Load dependencies (Required for Octave)
+% pkg load communications;
 
 % ========================================================
 % Benchmark Parameters (Experiment with your own values)
@@ -45,8 +45,8 @@ tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Test case: %d out of %d.", i, num));
-  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
+  fprintf("Test case: %d out of %d.", i, num);
+  fprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100);
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
@@ -84,8 +84,8 @@ tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Test case: %d out of %d.", i, num));
-  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
+  fprintf("Test case: %d out of %d.", i, num);
+  fprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100);
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
@@ -123,8 +123,8 @@ tic;
 
 for i = 1:num
   % Progress bar
-  disp(sprintf("Test case: %d out of %d.", i, num));
-  disp(sprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100));
+  fprintf("Test case: %d out of %d.", i, num);
+  fprintf("Bit Error Rate: %.3f%%\n", epsilon(i) * 100);
 
   % Update the cross-over-probability of the channel
   channel.CrossOverProbability = epsilon(i);
@@ -151,43 +151,46 @@ naive_error_rate_theoretical     = 1-(1-epsilon).^4;
 hamming_error_rate_theoretical   = 1-(1-epsilon).^6 .* (1+6*epsilon);
 
 % Upper and lower bound for hadamard encoding error rate
-hadamard_error_rate_theoretical  = 1-(1-epsilon).^16;
-hadamard_error_rate_theoretical -=   16 .* (epsilon .^ 1) .* (1-epsilon).^15;
-hadamard_error_rate_theoretical -=  120 .* (epsilon .^ 2) .* (1-epsilon).^14;
-hadamard_error_rate_theoretical -=  560 .* (epsilon .^ 3) .* (1-epsilon).^13;
+hadamard_error_rate_theoretical  = ...
+    1-(1-epsilon).^16 ...
+    -16 .* (epsilon .^ 1) .* (1-epsilon).^15 ...
+    -120 .* (epsilon .^ 2) .* (1-epsilon).^14 ...
+    -560 .* (epsilon .^ 3) .* (1-epsilon).^13;
 
 hadamard_error_rate_lower_bound = hadamard_error_rate_theoretical;
 hadamard_error_rate_upper_bound = hadamard_error_rate_theoretical - 1820 .* (epsilon .^ 4) .* (1-epsilon).^12;
 
 % Error-rates in logarithmic scale
-figure(1); hold on;
+figure(1); 
+axes('Xscale', 'log', 'Yscale', 'log');
+hold on;
 
-loglog(epsilon, naive_error_rate,
-  'o', 'color', 'red',
+loglog(epsilon, naive_error_rate, ...
+  'o', 'color', 'red', ...
   'MarkerFaceColor', 'red');
 
-loglog(epsilon, naive_error_rate_theoretical,
-  '--', 'color', 'red',
+loglog(epsilon, naive_error_rate_theoretical, ...
+  '--', 'color', 'red', ...
   'LineWidth', 1.5);
 
-loglog(epsilon, hamming_error_rate,
-  'o', 'color', 'blue',
+loglog(epsilon, hamming_error_rate, ...
+  'o', 'color', 'blue', ...
   'MarkerFaceColor', 'blue');
 
-loglog(epsilon, hamming_error_rate_theoretical,
-  '--', 'color', 'blue',
+loglog(epsilon, hamming_error_rate_theoretical, ...
+  '--', 'color', 'blue', ...
   'LineWidth', 1.5);
 
-loglog(epsilon, hadamard_error_rate,
-  'o', 'color', 'black',
+loglog(epsilon, hadamard_error_rate, ...
+  'o', 'color', 'black', ...
   'MarkerFaceColor', 'black');
 
-loglog(epsilon, hadamard_error_rate_upper_bound,
-  ':', 'color', 'black',
+loglog(epsilon, hadamard_error_rate_upper_bound, ...
+  ':', 'color', 'black', ...
   'LineWidth', 1.5);
 
-loglog(epsilon, hadamard_error_rate_lower_bound,
-  ':', 'color', 'black',
+loglog(epsilon, hadamard_error_rate_lower_bound, ...
+  ':', 'color', 'black', ...
   'LineWidth', 1.5);
 
 % Axes limits
@@ -198,14 +201,14 @@ xlabel('Cross-Over-Probability');
 ylabel('Decoder error-rate');
 title('Error-Rate vs Cross-Over-Probability');
 
-legend(
-  'No error-correction, benchmark results',
-  'No error-correction, theoretical error rate',
-  'Hamming (7,4), benchmark results',
-  'Hamming (7,4), theoretical error rate',
-  'Hadamard (16,4), benchmark results',
-  'Hadamard (16,4), theoretical error rate (upper bound)',
-  'Hadamard (16,4), theoretical error rate (lower bound)',
+legend( ...
+  'No error-correction, benchmark results', ...
+  'No error-correction, theoretical error rate', ...
+  'Hamming (7,4), benchmark results', ...
+  'Hamming (7,4), theoretical error rate', ...
+  'Hadamard (16,4), benchmark results', ...
+  'Hadamard (16,4), theoretical error rate (upper bound)', ...
+  'Hadamard (16,4), theoretical error rate (lower bound)', ...
   'Location', 'northwest');
 
 grid on;
